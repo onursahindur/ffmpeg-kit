@@ -74,7 +74,7 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 
-public class FFmpegKitFlutterPlugin implements FlutterPlugin, ActivityAware, MethodCallHandler, EventChannel.StreamHandler, PluginRegistry.ActivityResultListener {
+public class FFmpegKitFlutterPlugin implements FlutterPlugin, ActivityAware, MethodCallHandler, EventChannel.StreamHandler {
 
     public static final String LIBRARY_NAME = "ffmpeg-kit-flutter";
     public static final String PLATFORM_NAME = "android";
@@ -165,7 +165,7 @@ public class FFmpegKitFlutterPlugin implements FlutterPlugin, ActivityAware, Met
     @Override
     public void onAttachedToActivity(@NonNull ActivityPluginBinding activityPluginBinding) {
         Log.d(LIBRARY_NAME, String.format("FFmpegKitFlutterPlugin %s attached to activity %s.", this, activityPluginBinding.getActivity()));
-        init(flutterPluginBinding.getBinaryMessenger(), flutterPluginBinding.getApplicationContext(), activityPluginBinding.getActivity(), null, activityPluginBinding);
+        init(flutterPluginBinding.getBinaryMessenger(), flutterPluginBinding.getApplicationContext(), activityPluginBinding.getActivity(), activityPluginBinding);
     }
 
     @Override
@@ -194,29 +194,6 @@ public class FFmpegKitFlutterPlugin implements FlutterPlugin, ActivityAware, Met
     public void onCancel(final Object o) {
         this.eventSink = null;
         Log.d(LIBRARY_NAME, "FFmpegKitFlutterPlugin stopped listening to events.");
-    }
-
-    @Override
-    public boolean onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        Log.d(LIBRARY_NAME, String.format("selectDocument completed with requestCode: %d, resultCode: %d, data: %s.", requestCode, resultCode, data == null ? null : data.toString()));
-
-        if (requestCode == READABLE_REQUEST_CODE || requestCode == WRITABLE_REQUEST_CODE) {
-            if (resultCode == Activity.RESULT_OK) {
-                if (data == null) {
-                    resultHandler.successAsync(lastInitiatedIntentResult, null);
-                } else {
-                    final Uri uri = data.getData();
-                    resultHandler.successAsync(lastInitiatedIntentResult, uri == null ? null : uri.toString());
-                }
-            } else {
-                resultHandler.errorAsync(lastInitiatedIntentResult, "SELECT_CANCELLED", String.valueOf(resultCode));
-            }
-
-            return true;
-        } else {
-            Log.i(LIBRARY_NAME, String.format("FFmpegKitFlutterPlugin ignored unsupported activity result for requestCode: %d.", requestCode));
-            return false;
-        }
     }
 
     @Override
@@ -619,7 +596,6 @@ public class FFmpegKitFlutterPlugin implements FlutterPlugin, ActivityAware, Met
 
     @SuppressWarnings("deprecation")
     protected void init(final BinaryMessenger messenger, final Context context, final Activity activity, final ActivityPluginBinding activityBinding) {
-        
 
         if (methodChannel == null) {
             methodChannel = new MethodChannel(messenger, METHOD_CHANNEL);
@@ -639,7 +615,7 @@ public class FFmpegKitFlutterPlugin implements FlutterPlugin, ActivityAware, Met
         this.activity = activity;
 
         // V2 embedding setup for activity listeners.
-        activityBinding.addActivityResultListener(this);
+        //activityBinding.addActivityResultListener(this);
 
         Log.d(LIBRARY_NAME, String.format("FFmpegKitFlutterPlugin %s initialised with context %s and activity %s.", this, context, activity));
     }
@@ -649,7 +625,7 @@ public class FFmpegKitFlutterPlugin implements FlutterPlugin, ActivityAware, Met
         uninitEventChannel();
 
         if (this.activityPluginBinding != null) {
-            this.activityPluginBinding.removeActivityResultListener(this);
+            //this.activityPluginBinding.removeActivityResultListener(this);
         }
 
         this.context = null;
