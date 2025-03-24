@@ -152,24 +152,6 @@ public class FFmpegKitFlutterPlugin implements FlutterPlugin, ActivityAware, Met
         Log.d(LIBRARY_NAME, String.format("FFmpegKitFlutterPlugin created %s.", this));
     }
 
-    protected void registerGlobalCallbacks() {
-        FFmpegKitConfig.enableFFmpegSessionCompleteCallback(this::emitSession);
-        FFmpegKitConfig.enableFFprobeSessionCompleteCallback(this::emitSession);
-        FFmpegKitConfig.enableMediaInformationSessionCompleteCallback(this::emitSession);
-
-        FFmpegKitConfig.enableLogCallback(log -> {
-            if (logsEnabled.get()) {
-                emitLog(log);
-            }
-        });
-
-        FFmpegKitConfig.enableStatisticsCallback(statistics -> {
-            if (statisticsEnabled.get()) {
-                emitStatistics(statistics);
-            }
-        });
-    }
-
     @Override
     public void onAttachedToEngine(@NonNull final FlutterPluginBinding flutterPluginBinding) {
         this.flutterPluginBinding = flutterPluginBinding;
@@ -636,8 +618,8 @@ public class FFmpegKitFlutterPlugin implements FlutterPlugin, ActivityAware, Met
     }
 
     @SuppressWarnings("deprecation")
-    protected void init(final BinaryMessenger messenger, final Context context, final Activity activity, final io.flutter.plugin.common.PluginRegistry.Registrar registrar, final ActivityPluginBinding activityBinding) {
-        registerGlobalCallbacks();
+    protected void init(final BinaryMessenger messenger, final Context context, final Activity activity, final ActivityPluginBinding activityBinding) {
+        
 
         if (methodChannel == null) {
             methodChannel = new MethodChannel(messenger, METHOD_CHANNEL);
@@ -656,13 +638,8 @@ public class FFmpegKitFlutterPlugin implements FlutterPlugin, ActivityAware, Met
         this.context = context;
         this.activity = activity;
 
-        if (registrar != null) {
-            // V1 embedding setup for activity listeners.
-            registrar.addActivityResultListener(this);
-        } else {
-            // V2 embedding setup for activity listeners.
-            activityBinding.addActivityResultListener(this);
-        }
+        // V2 embedding setup for activity listeners.
+        activityBinding.addActivityResultListener(this);
 
         Log.d(LIBRARY_NAME, String.format("FFmpegKitFlutterPlugin %s initialised with context %s and activity %s.", this, context, activity));
     }
